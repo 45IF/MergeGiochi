@@ -57,3 +57,24 @@ Ottenere conferma esplicita di Dario prima di eseguire un installer Git, oppure 
 - Passo 8 eseguito con esito PARZIALE: geometria e ossa presenti, texture da correggere.
 - Push bloccato: repository remoto pubblico (private=false verificato via API). Occorre renderlo privato prima di caricare documentazione del progetto.
 - Prossimo intervento: chiarire la versione dell'eseguibile GTA e risolvere elevazione Jetpack; diagnosticare caricamento DDS/importazione materiali sul modello già salvato. Nessun originale modificato.
+
+## Decisioni e risultati aggiornati — 8 novembre 2026
+- Autorizzato esplicitamente il push pubblico di solo codice/documentazione. Asset LMSH1 esclusivamente originali; nessuna sostituzione o texture rifatta. Regole aggiornate in AGENTS.md.
+- Risolta la mancanza dei dettagli del busto usando IRONMANM6.CD, già tra i 185 file estratti. IRONMAN.CD dichiara invece LEGO_DARKRED per fronte e retro: il primo test non usava la definizione dell'armatura Mark 6.
+- Mark 6: importazione e render completati, CHARACTER_PACKAGE_CHECK_PASSED 1; 20 mesh visibili e 63 ossa. File locali: estratti/verifica-ironman-m6/LMSH1_IRONMANM6.blend e .png, validation.json.
+- Texture originali: BODY_IRONMANM6_FRONT, BODY_IRONMANM6_BACK, LEGRIGHT_IRONMANM6 nelle cartelle condivise CHARS/MINIFIGS/SUPER_CHARACTERS. Il CD dichiara MATERIAL_REMAP_IRONMANM6 con MAT_IRONMANM6GLOW_FRONT, MAT_IRONMANM6GOLD_BACK e MAT_IRONMANM6GOLD_LEGS.
+- Documentazione consultata: TTGames-Workshop/docs/ISSUE_1_MINIFIGS.md e DIAGNOSTIC_TOOLS.md. L'importatore gestisce già il layer additivo comune del reattore; ricostruzione completa di shader metallici/BRDF e luminosità nativa ancora limitata. Non trovato un interruttore generico decal necessario per questo caso.
+- Audit locale estratti/audit-ironman-m6/audit.json: mesh del busto con Source uv 0 e Source uv 1; tutti i vertici del busto hanno gruppi/pesi. Ossa, mesh e texture originali presenti; non ancora testata animazione/deformazione nel gioco. Il render mostra armatura stampata, dettagli gambe e reattore. Nessun asset esterno o generato.
+- Noesis non necessario per questo test: importazione Mark 6 riuscita in Blender. Nessuna equivalenza perfetta dello shader di gioco dichiarata.
+
+## Jetpack: nuovo tentativo amministratore
+- Versione tool 2.3.0.1. Tentato Start-Process -Verb RunAs sulla sola GTA-SA-mod; chiamata ha restituito PID 1788, ma nessun log catturato. Successivo wrapper elevato per acquisire output restituisce PID 19924 ma non produce il log previsto. Non è possibile confermare la versione rilevata dal programma: nessun messaggio runtime acquisito.
+- Messaggio esatto dei tentativi precedenti: "This command cannot be run due to the error: Per eseguire l'operazione richiesta è necessaria l'esecuzione con privilegi elevati."
+- Dal codice ufficiale gli hash dell'eseguibile attuale non risultano supportati; questa è un'analisi statica, NON un messaggio osservato di Jetpack. Versione gioco resta non identificata.
+- SHA-256 gta-sa.exe ricontrollato e invariato: AA07FCDC8723A2831F77A35491DEA6CDD58F6733E3AC69A10DDF5CDF95034FE3. Non forzato alcun downgrade. Punto affidato a Claude/Grok come richiesto.
+
+## Toolchain e prova ASI
+- Installazione Microsoft.VisualStudio.2022.BuildTools 17.14.44 con workload VCTools tentata via winget. Esito: "Installer failed with exit code: 2147942512" (0x80070070, spazio insufficiente). Spazio libero al controllo 3.616.550.912 byte. Nessun file utente cancellato per fare spazio.
+- plugin-sdk ufficiale scaricato in strumenti/plugin-sdk, commit 15f15b60bbf74c106e1b496ff92c98764abf4605.
+- Preparato src/ProvaASI.cpp: messaggio al caricamento della partita, guardia per SA 1.0 US. NON compilato né testato in gioco: compilatore non installato completamente. Il sorgente non va considerato validato.
+- Occorre liberare spazio o indicare un disco per completare la toolchain; nessun ASI binario dichiarato pronto.

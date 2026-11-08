@@ -1,6 +1,6 @@
 # MergeGiochi — istruzioni per gli agenti (Codex / ChatGPT-A)
 
-Progetto PRIVATO di Dario: mod di GTA San Andreas (PC) con i personaggi e le abilità di LEGO Marvel Super Heroes (2013). Non va mai pubblicato.
+Mod di Dario: GTA San Andreas (PC) con personaggi e abilità di LEGO Marvel Super Heroes (2013). Autorizzazione aggiornata: codice e documentazione possono essere pubblicati nel repository; asset e binari dei giochi rimangono esclusivamente locali.
 
 ## Squadra
 - Claude: coordinatore (piano, architettura, revisione, integrazione). Scrive i compiti in `docs/compiti/`.
@@ -19,6 +19,9 @@ Progetto PRIVATO di Dario: mod di GTA San Andreas (PC) con i personaggi e le abi
 ## Regole
 1. Mai modificare le due cartelle originali.
 2. Mai committare asset o binari dei giochi (vedi .gitignore): nel repo vanno solo codice, script, configurazioni, documentazione, script di conversione.
-3. Scarica strumenti solo da fonti ufficiali (release GitHub del progetto o sito dell'autore). Annota in `docs/strumenti.md` nome, versione, URL e hash SHA-256 di ogni cosa scaricata. Prima di eseguire un installer o un downgrader, chiedi conferma a Dario.
+3. Scarica strumenti solo da fonti ufficiali (release GitHub del progetto o sito dell'autore). Annota in `docs/strumenti.md` nome, versione, URL e hash SHA-256 di ogni cosa scaricata. Installer e downgrader puoi eseguirli senza chiedere: le decisioni operative le prende Claude (coordinatore). Coinvolgi Dario SOLO se serve fisicamente lui: richiesta UAC/password di amministratore, login, acquisti, o un'azione che cancellerebbe dati fuori da Merge-Giochi.
 4. Dopo ogni compito aggiorna `docs/stato.md` (cosa fatto, cosa non va, prossimo passo) e fai commit con messaggio in italiano.
-5. Se qualcosa non funziona dopo 2-3 tentativi, fermati e scrivi il problema in `docs/stato.md` invece di andare avanti a caso.
+5. Lavora in autonomia, un passo dopo l'altro, senza fermarti a chiedere conferme intermedie.
+6. Se qualcosa non funziona dopo 2-3 tentativi, fermati e scrivi il problema in `docs/stato.md` invece di andare avanti a caso.
+7. Iron Man deve provenire esclusivamente dagli asset originali LMSH1, comprese le dipendenze condivise. Niente modelli esterni, di altri giochi, generati o rifatti a mano. Mod SA esistenti studiabili solo per il codice del volo.
+8. Prima del push controlla stato, file tracciati e commit in uscita: il solo .gitignore non basta a escludere asset già tracciati.
