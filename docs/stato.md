@@ -78,3 +78,7 @@ Ottenere conferma esplicita di Dario prima di eseguire un installer Git, oppure 
 - plugin-sdk ufficiale scaricato in strumenti/plugin-sdk, commit 15f15b60bbf74c106e1b496ff92c98764abf4605.
 - Preparato src/ProvaASI.cpp: messaggio al caricamento della partita, guardia per SA 1.0 US. NON compilato né testato in gioco: compilatore non installato completamente. Il sorgente non va considerato validato.
 - Occorre liberare spazio o indicare un disco per completare la toolchain; nessun ASI binario dichiarato pronto.
+
+- Verifica finale toolchain: vswhere restituisce [] (nessuna istanza Visual Studio installata). Hash installer registrato in docs/strumenti.md.
+- Push avviato dopo controllo git status, file tracciati e cronologia in uscita: solo .md, .gitignore, .cpp e .py. Al momento attende git-credential-manager: richiesta a Dario di completare accesso GitHub. Nessun successo remoto ancora confermato.
+
