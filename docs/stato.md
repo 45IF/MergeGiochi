@@ -82,3 +82,6 @@ Ottenere conferma esplicita di Dario prima di eseguire un installer Git, oppure 
 - Verifica finale toolchain: vswhere restituisce [] (nessuna istanza Visual Studio installata). Hash installer registrato in docs/strumenti.md.
 - Push avviato dopo controllo git status, file tracciati e cronologia in uscita: solo .md, .gitignore, .cpp e .py. Al momento attende git-credential-manager: richiesta a Dario di completare accesso GitHub. Nessun successo remoto ancora confermato.
 
+
+- Autenticazione risolta: push confermato dal remoto, main aggiornato da 0cad3f7 a 68c113c. Nessun asset/binario incluso. Aggiornamenti successivi documentano provenienza e blocchi.
+
