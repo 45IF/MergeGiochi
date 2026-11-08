@@ -1,0 +1,20 @@
+# Mai asset o binari dei giochi nel repo
+*.dff
+*.txd
+*.img
+*.ifp
+*.col
+*.DAT
+*.dat
+*.exe
+*.dll
+*.asi
+*.blend
+*.blend1
+/estratti/
+/build/
+/bin/
+/obj/
+.vs/
+*.user
+*.log
