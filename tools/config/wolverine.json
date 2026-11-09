@@ -1,0 +1,46 @@
+{
+  "model_name": "wolvie",
+  "lmsh_blend": "/mnt/user-data/uploads/Merge-Giochi/estratti/verifica-wolverine/LMSH1_WOLVERINE.blend",
+  "sa_skeleton_dff": "/home/claude/lavoro/sa/torso.dff",
+  "out_dir": "/home/claude/lavoro/out/wolvie",
+  "target_height": 1.75,
+  "ground_z": -1.0,
+  "include_meshes": [
+    "*"
+  ],
+  "oggetti": [
+    {
+      "blend": "/mnt/user-data/uploads/Merge-Giochi/estratti/oggetti/LMSH1_WOLVERINECLAWS.blend",
+      "mesh": "Wolverine_Claws_Mesh",
+      "osso_sa": " R Hand",
+      "ancora_mesh": "RightHand_Mesh",
+      "offset": [
+        0,
+        0.005,
+        -0.015
+      ],
+      "rotazione": [
+        -90,
+        0,
+        0
+      ]
+    },
+    {
+      "blend": "/mnt/user-data/uploads/Merge-Giochi/estratti/oggetti/LMSH1_WOLVERINECLAWS.blend",
+      "mesh": "Wolverine_Claws_Mesh",
+      "osso_sa": " L Hand",
+      "ancora_mesh": "LeftHand_Mesh",
+      "offset": [
+        0,
+        0.005,
+        -0.015
+      ],
+      "specchia_x": true,
+      "rotazione": [
+        -90,
+        0,
+        0
+      ]
+    }
+  ]
+}

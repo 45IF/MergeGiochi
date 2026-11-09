@@ -39,3 +39,4 @@
 *.obj
 *.pdb
 /strumenti/
+__pycache__/

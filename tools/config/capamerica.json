@@ -1,0 +1,27 @@
+{
+  "model_name": "capam",
+  "lmsh_blend": "/mnt/user-data/uploads/Merge-Giochi/estratti/verifica-captainamerica/LMSH1_CAPTAINAMERICA.blend",
+  "sa_skeleton_dff": "/home/claude/lavoro/sa/torso.dff",
+  "out_dir": "/home/claude/lavoro/out/capam",
+  "target_height": 1.8,
+  "ground_z": -1.0,
+  "include_meshes": [
+    "*"
+  ],
+  "oggetti": [
+    {
+      "blend": "/home/claude/lavoro/LMSH1_AMERICASHIELD.blend",
+      "mesh": "AmericaShield",
+      "osso_sa": " L Hand",
+      "ancora_mesh": "LeftHand_Mesh",
+      "offset": [
+        0.02,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "texture_names": {
+    "AMERICASHIELD_NXG / texture 3": "capscudo"
+  }
+}

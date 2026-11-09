@@ -1,0 +1,9 @@
+{
+  "model_name": "spidey",
+  "lmsh_blend": "/mnt/user-data/uploads/Merge-Giochi/estratti/verifica-spiderman/LMSH1_SPIDERMAN.blend",
+  "sa_skeleton_dff": "/home/claude/lavoro/sa/torso.dff",
+  "out_dir": "/home/claude/lavoro/out/spidey",
+  "target_height": 1.8,
+  "ground_z": -1.0,
+  "include_meshes": ["*"]
+}

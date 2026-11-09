@@ -1,8 +1,8 @@
 // MergeGiochi — Cambio personaggio (prototipo)
 // Scritto da Claude. plugin-sdk, GTA SA 1.0 US, x86.
 //
-// F9: il giocatore diventa Iron Man (modello "ironman" registrato in peds.ide tramite Modloader);
-//     premendo di nuovo torna CJ con i suoi vestiti.
+// F9 / F10: personaggio successivo / precedente del roster (Iron Man, Spider-Man, Captain America,
+//           Wolverine, Hulk). Versione 3 (9/11): selettore al posto del solo Iron Man.
 // L'ID del modello non è scritto nel codice: viene cercato per nome, così funziona con qualunque ID libero
 // scelto in peds.ide.
 //
@@ -16,6 +16,11 @@
 #include "CStreamingInfo.h"
 #include "CClothes.h"
 #include "CHud.h"
+#include "CClumpModelInfo.h"
+#include "CCutsceneMgr.h"
+#include "CCutsceneObject.h"
+#include "CAnimBlendClumpData.h"
+#include "RenderWare.h"
 #include <cstdio>
 
 using namespace plugin;
@@ -29,6 +34,91 @@ static void Log(const char* fmt, int a = 0, int b = 0) {
     }
 }
 
+// Roster in ordine di selezione. "cj" = modello 0 con i vestiti. I personaggi il cui modello non è in peds.ide
+// vengono saltati, così il ciclo funziona anche mentre il roster cresce.
+struct Personaggio { const char* modello; const char* nome; };
+// CJ è stato tolto su richiesta di Dario (9/11): si parte da Iron Man e CJ non compare più, né in gioco né
+// nei filmati realizzati col motore (il "csplay" dei filmati diventa il personaggio scelto, vedi sotto).
+constexpr Personaggio ROSTER[] = {
+    { "ironman", "Iron Man" },
+    { "spidey",  "Spider-Man" },
+    { "capam",   "Captain America" },
+    { "wolvie",  "Wolverine" },
+    { "hulk",    "Hulk" },
+};
+constexpr int N_ROSTER = sizeof(ROSTER) / sizeof(ROSTER[0]);
+
+// modello del personaggio scelto (letto anche dal gancio dei filmati)
+int g_idScelto = -1;
+int g_idFilmato = -1; // modello speciale "csplay" dei filmati
+
+static int TrovaModelloG(const char* nome) { int id = -1; CModelInfo::GetModelInfo(nome, &id); return id; }
+
+// Al posto di CClothes::RebuildCutscenePlayer (0x5A8270), che costruisce CJ vestito nel modello speciale usato
+// dai filmati: ci si mette una copia del modello del personaggio scelto (stesso scheletro dei pedoni di SA,
+// quindi le animazioni dei filmati si applicano).
+static void __cdecl FilmatoSenzaCJ(CPlayerPed* player, int idModelloFilmato) {
+    int id = g_idScelto > 0 ? g_idScelto : TrovaModelloG("ironman");
+    Log("Filmato: csplay (%d) -> personaggio %d", idModelloFilmato, id);
+    g_idFilmato = idModelloFilmato;
+    if (id <= 0) return;
+    if (CStreaming::ms_aInfoForModel[id].m_nLoadState != LOADSTATE_LOADED) {
+        CStreaming::RequestModel(id, GAME_REQUIRED | KEEP_IN_MEMORY);
+        CStreaming::LoadAllRequestedModels(false);
+    }
+    CBaseModelInfo* src = CModelInfo::ms_modelInfoPtrs[id];
+    CBaseModelInfo* dst = CModelInfo::ms_modelInfoPtrs[idModelloFilmato];
+    if (!src || !dst || !src->m_pRwObject) { Log("Filmato: modello non disponibile", 0, 0); return; }
+    RpClump* copia = RpClumpClone(reinterpret_cast<RpClump*>(src->m_pRwObject));
+    if (dst->m_pRwObject) dst->DeleteRwObject();
+    static_cast<CClumpModelInfo*>(dst)->SetClump(copia);
+}
+
+
+// I filmati di SA animano anche la TRASLAZIONE di ogni osso con le misure di CJ: sul nostro scheletro (minifig,
+// bacino abbassato) il personaggio veniva stirato e deformato ("CJ distorto", prova di Dario del 9/11).
+// Dopo l'aggiornamento delle animazioni si rimettono le traslazioni a quelle del nostro modello:
+// radice = quella del filmato (posizione nella scena), tutte le altre ossa = misure del nostro modello
+// (come nelle animazioni di gioco, dove si muove solo la radice).
+static void RaddrizzaFilmato() {
+    if (!CCutsceneMgr::ms_running || g_idFilmato < 0) return;
+    for (unsigned int i = 0; i < CCutsceneMgr::ms_numCutsceneObjs; i++) {
+        CCutsceneObject* o = CCutsceneMgr::ms_pCutsceneObjects[i];
+        if (!o || o->m_nModelIndex != g_idFilmato || !o->m_pRwClump) continue;
+        CAnimBlendClumpData* dati = RpClumpGetAnimBlendClumpData(o->m_pRwClump);
+        if (!dati || !dati->m_pFrames) continue;
+        for (int f = 0; f < dati->m_nNumFrames; f++) {
+            AnimBlendFrameData& fd = dati->m_pFrames[f];
+            if (!fd.m_pIFrame || fd.m_nNodeId == 0) continue;
+            CVector* t = reinterpret_cast<CVector*>(reinterpret_cast<char*>(fd.m_pIFrame) + 16);
+            // anche il bacino torna alla sua misura: sommargli l'abbassamento si accumulava di frame in frame
+            // quando il filmato non anima la traslazione del bacino (Iron Man sprofondava, prova del 9/11)
+            *t = fd.m_vecOffset;
+        }
+        if (RpHAnimHierarchy* h = GetAnimHierarchyFromSkinClump(o->m_pRwClump))
+            RpHAnimHierarchyUpdateMatrices(h);
+    }
+}
+
+// Al posto di CClothes::RebuildPlayer (0x5A82C0): il gioco lo chiama per (ri)costruire CJ vestito (inizio
+// partita, caricamenti, morte, arresto, negozi, missioni). Qui il giocatore diventa subito il personaggio scelto:
+// prima restava CJ finché non scendeva dal veicolo.
+static void __cdecl RicostruisciSenzaCJ(CPlayerPed* player, bool) {
+    int id = g_idScelto > 0 ? g_idScelto : TrovaModelloG("ironman");
+    if (!player || id <= 0) return;
+    if (CStreaming::ms_aInfoForModel[id].m_nLoadState != LOADSTATE_LOADED) {
+        CStreaming::RequestModel(id, GAME_REQUIRED | KEEP_IN_MEMORY);
+        CStreaming::LoadAllRequestedModels(false);
+    }
+    Log("RebuildPlayer intercettato: personaggio %d", id);
+    unsigned int gruppoAnim = player->m_nAnimGroup;
+    player->DeleteRwObject();
+    player->m_nModelIndex = -1;
+    player->SetModelIndex(id);
+    player->m_nAnimGroup = gruppoAnim;
+    g_idScelto = id;
+}
+
 class CambioPersonaggio {
 public:
     CambioPersonaggio() {
@@ -36,13 +126,16 @@ public:
         if (v != GAME_10US_COMPACT && v != GAME_10US_HOODLUM)
             return;
         Events::gameProcessEvent += [this] { Aggiorna(); };
+        patch::RedirectJump(0x5A8270, reinterpret_cast<void*>(FilmatoSenzaCJ));
+        patch::RedirectJump(0x5A82C0, reinterpret_cast<void*>(RicostruisciSenzaCJ));
+        Events::gameProcessEvent += [] { RaddrizzaFilmato(); };
+        Events::objectRenderEvent += [](CObject*) { RaddrizzaFilmato(); };
     }
 
 private:
     bool f9Prima = false;
     bool f10Prima = false;
-    bool f11Prima = false;
-    bool comeIronMan = false;
+    int attuale = 0; // indice in ROSTER (0 = Iron Man)
 
     static int TrovaModello(const char* nome) {
         int id = -1;
@@ -69,64 +162,50 @@ private:
         Log("CambiaModello: fatto, gruppo anim %d", gruppoAnim);
     }
 
+    // passa al personaggio successivo (passo = +1) o precedente (passo = -1) disponibile
+    void Cambia(CPlayerPed* player, int passo) {
+        for (int tentativi = 1; tentativi <= N_ROSTER; tentativi++) {
+            int i = ((attuale + passo * tentativi) % N_ROSTER + N_ROSTER) % N_ROSTER;
+            const Personaggio& p = ROSTER[i];
+            int id = TrovaModello(p.modello);
+            if (id < 0) { Log("modello %d assente, saltato", i); continue; }
+            if (!Carica(id)) { Log("modello %d non caricabile, saltato", i); continue; }
+            int vecchio = player->m_nModelIndex;
+            CambiaModello(player, id);
+            if (vecchio > 0 && vecchio != id) CStreaming::SetModelIsDeletable(vecchio);
+            attuale = i;
+            g_idScelto = id;
+            static char testo[128];
+            std::snprintf(testo, sizeof(testo), "Ora sei %s (F9 avanti, F10 indietro)", p.nome);
+            CHud::SetHelpMessage(testo, true, false, false);
+            return;
+        }
+    }
+
     void Aggiorna() {
         CPlayerPed* player = FindPlayerPed();
         if (!player) return;
 
-        // F10 (diagnostica): ciclo CJ -> male01 (ID 7, originale) -> mgtest (busto originale di CJ) -> CJ.
-        bool f10 = KeyPressed(VK_F10);
-        if (f10 && !f10Prima && !player->bInVehicle) {
-            int idTest = TrovaModello("mgtest");
-            if (player->m_nModelIndex == 0 || comeIronMan) {
-                Log("F10: prova con male01");
-                if (Carica(7)) { CambiaModello(player, 7); CStreaming::SetModelIsDeletable(7); }
-            } else if (player->m_nModelIndex == 7 && idTest >= 0) {
-                Log("F10: prova A (mgtest), ID %d", idTest);
-                if (Carica(idTest)) { CambiaModello(player, idTest); CStreaming::SetModelIsDeletable(idTest); }
-                Log("F10: prova A applicata");
-            } else if (player->m_nModelIndex == idTest && TrovaModello("mgtest2") >= 0) {
-                int id2 = TrovaModello("mgtest2");
-                Log("F10: prova B (mgtest2), ID %d", id2);
-                if (Carica(id2)) { CambiaModello(player, id2); CStreaming::SetModelIsDeletable(id2); }
-                Log("F10: prova B applicata");
-            } else {
-                Log("F10: ritorno a CJ");
-                CambiaModello(player, 0); CClothes::RebuildPlayer(player, false);
+        // niente CJ: all'avvio, dopo un caricamento, una morte, un arresto o un cambio d'abiti il gioco rimette il
+        // modello 0 (CJ); appena possibile si torna al personaggio scelto
+        if (player->m_nModelIndex == 0 && !player->bInVehicle && !CCutsceneMgr::ms_running && player->m_pRwClump) {
+            int id = TrovaModello(ROSTER[attuale].modello);
+            if (id > 0 && Carica(id)) {
+                Log("CJ sostituito dal personaggio %d", id, 0);
+                CambiaModello(player, id);
+                g_idScelto = id;
             }
-            comeIronMan = false;
         }
-        f10Prima = f10;
 
-        bool f9 = KeyPressed(VK_F9);
-        bool premuto = f9 && !f9Prima;
-        f9Prima = f9;
-        if (!premuto) return;
+        bool f9 = KeyPressed(VK_F9), f10 = KeyPressed(VK_F10);
+        int passo = (f9 && !f9Prima) ? 1 : (f10 && !f10Prima) ? -1 : 0;
+        f9Prima = f9; f10Prima = f10;
+        if (!passo) return;
         if (player->bInVehicle) {
             CHud::SetHelpMessage("Scendi dal veicolo per cambiare personaggio", true, false, false);
             return;
         }
-
-        if (!comeIronMan) {
-            int id = TrovaModello("ironman");
-            Log("F9: modello ironman ha ID %d", id);
-            if (id < 0) {
-                CHud::SetHelpMessage("Modello ironman non trovato: controlla peds.ide in modloader", true, false, false);
-                return;
-            }
-            if (!Carica(id)) {
-                CHud::SetHelpMessage("Impossibile caricare ironman.dff/txd", true, false, false);
-                return;
-            }
-            CambiaModello(player, id);
-            CStreaming::SetModelIsDeletable(id);
-            comeIronMan = true;
-            CHud::SetHelpMessage("Ora sei Iron Man (F9 per tornare CJ)", true, false, false);
-        } else {
-            CambiaModello(player, 0);               // 0 = modello del giocatore (CJ)
-            CClothes::RebuildPlayer(player, false); // ricostruisce i vestiti di CJ
-            comeIronMan = false;
-            CHud::SetHelpMessage("Sei tornato CJ", true, false, false);
-        }
+        Cambia(player, passo);
     }
 } cambioPersonaggio;
 

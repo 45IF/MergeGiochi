@@ -1,0 +1,12 @@
+{
+  "model_name": "hulk",
+  "lmsh_blend": "/mnt/user-data/uploads/Merge-Giochi/estratti/verifica-hulk/LMSH1_HULK.blend",
+  "sa_skeleton_dff": "/home/claude/lavoro/sa/torso.dff",
+  "out_dir": "/home/claude/lavoro/out/hulk",
+  "target_height": 2.8,
+  "ground_z": -1.0,
+  "include_meshes": [
+    "*"
+  ],
+  "raddrizza_gomiti": true
+}
