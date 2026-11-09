@@ -147,3 +147,21 @@ Vedi `docs/compiti/05-codex-quattro-personaggi.md` (Codex) — Claude lavora su 
 | Wolverine | 18 | 63 | 7/7 | Costume e capelli visibili; artigli assenti nella posa importata |
 Le verifiche texture riaprono i .blend e controllano dati immagine e packed_file. Nessuna immagine senza pixel nei tre file. Report locali nelle cartelle estratti/audit-<personaggio>.
 
+
+### Chiusura verifiche locali compito 05
+- Hulk: 13 mesh visibili, 70 ossa, 2/2 texture caricate e impacchettate; render verificato in estratti/verifica-hulk. Il bigfig mantiene il rig nativo: non è ancora un test del rig SA.
+- Estrazione dei quattro personaggi completata su GAME.DAT e GAME0..10.DAT: confronto con l'indice originale, 120 risorse attese, zero mancanti. Report estratti/quattro-personaggi/indici/copertura.json. Rimane parziale la prova degli 8 slot pedoni in partita descritta sopra.
+
+## Compito 06 — stud 3D, 9 novembre (Codex)
+- Bundle claude_9a79c41.bundle integrato con fast-forward e push completato fino a 9a79c41. Modifiche locali di Claude conservate; stash di sicurezza mantenuto.
+- COIN_NXG.GSC originale importato in estratti/verifica-stud/originale: due parti, 24+72 vertici, 24+68 facce; una texture 128x128 impacchettata e verificata (65536 componenti pixel).
+- Nuovo tools/crea_stud_3d.py: geometria/UV originali, diametro 0,35 m, rotazione di 90 gradi attorno a X e centratura. Colore oro nel materiale RW; approssimazione dello shader TT, nessuna texture ridisegnata.
+- Prima esportazione riuscita in estratti/verifica-stud/conversione. La texture lmsh_stud del HUD è copiata come texture nativa, senza ricompressione: SHA256 f49af1ae1260d235ecbfd9089971688a808564c3dbc77bb8ac97f80565d8513d invariato.
+- Risolto caricamento pigro delle immagini Blender: has_data inizialmente falso non indica pixel mancanti; audit separato conferma la DDS originale. Verifica del DFF e prova in gioco in corso; B rimane subordinato alla prova A.
+- DFF riletto con DragonFF: 96 vertici, 92 triangoli, 96 normali finite e normalizzate; dimensioni 0,35 x 0,071826 x 0,35 m. Render di controllo: estratti/verifica-stud/conversione/reimport.png. Nota: Blender salda alcuni vertici in reimport, il DFF mantiene i 96 originali.
+- Installati Money.dff (5162 byte, SHA256 75E0BB1870273FFA367E8B394E951C92A9D9A4CFB6A21CA01742D4EBB6A435EF) e dyn_cash.txd (131368 byte, SHA256 1EC0C95C546D609D10F1C7D34C56CD75ABBB8CDC367AAFB157327FBF8206B97A) a gioco chiuso. Backup in estratti/verifica-stud/backup.
+- In partita osservati personaggio e HUD funzionanti, valore iniziale 350. Prova F6 ancora da completare: prima sessione usata contemporaneamente da Dario, poi chiusa. Dario ha ora lasciato i comandi a Codex.
+- CORREZIONE dopo riscontro diretto di Dario: COIN_NXG è una moneta con il numero 10, NON lo stud LMSH1 richiesto. La riuscita tecnica della conversione non valida l'identità dell'asset. Prova A respinta; B non avviato. A gioco chiuso ripristinati Money.dff e dyn_cash.txd dal backup precedente. Ricerca dello stud autentico in STUFF/THINGS e risorse correlate in corso.
+- Ripristino verificato: Money.dff MD5 7A54DB7D47801FE0577022E09E86D2A5; dyn_cash.txd MD5 3CD1A6936DA3068D028AF194D41E7547, entrambi identici ai backup. Rimane installato il precedente pickup piatto di Claude.
+- Ricerca documentata in docs/stud-ricerca.md: THINGS gold/silver/blue/purple_pan_coin sono quad; COIN.ATS e COIN_PAUSE.ATS animano indici texture 0..31. coin_side appartiene a TrueBar. Ispezionati anche i pezzi round e MAGNETOSTUDS: nessuno verificato come pickup corretto, nessuno installato.
+- tools/crea_stud_3d.py ora rifiuta l'uso normale e conserva l'esperimento solo con --diagnostic-coin, per evitare di reinstallare il candidato respinto. Compito 06 NON completato: identità asset irrisolta, raccolta +500 e distanza 20–30 m non validate. B/C non avviati. Non indicare StudPickup pronto da compilare.
