@@ -123,3 +123,12 @@ Ottenere conferma esplicita di Dario prima di eseguire un installer Git, oppure 
 
 ## Prossimo passo
 Vedi `docs/compiti/05-codex-quattro-personaggi.md` (Codex) — Claude lavora su volo/caduta libera e conversione.
+
+## Compito 05 — 9 novembre, avanzamento Codex
+- Commit 96a91d2 e push completati: pipeline e codice di Claude, solo sorgenti/documentazione.
+- Open Limit Adjuster 2.0.6 ufficiale installato nella radice GTA-SA-mod. PedModels=unlimited, altre voci presenti impostate a 0, Log=1. Il log riconosce SA 1.0 US HOODLUM e Mod Loader.
+- Prova temporanea: 8 definizioni con ID liberi 2,5,6,8,42,65,74,86 e copie di male01. Osservato caricamento, log SCM inizializzato; arrivo in partita NON confermato perché finestra ripetutamente minimizzata. Test quindi parziale.
+- Sessione di prova chiusa; peds.ide ripristinato con MD5 916CA09EEA05C6E9F59C7C1176FA0548; TestPedModels spostata fuori dal gioco in estratti/test-pedmodels.
+- ironman.dff MD5 D7435804AA03F5FEEEB84471F222471F e ironman.txd MD5 255E574186E5AFCAAD6934281DAF089A invariati.
+- QuickBMS: 59 risorse dei quattro personaggi estratte da GAME.DAT; estrazione dagli altri archivi e import Blender in corso.
+
