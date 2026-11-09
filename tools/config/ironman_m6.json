@@ -1,0 +1,17 @@
+{
+  "model_name": "ironman",
+  "lmsh_blend": "/mnt/user-data/uploads/Merge-Giochi/estratti/verifica-ironman-m6/LMSH1_IRONMANM6.blend",
+  "sa_skeleton_dff": "/home/claude/lavoro/sa/torso.dff",
+  "out_dir": "/home/claude/lavoro/out/ironman",
+  "target_height": 1.8,
+  "ground_z": -1.0,
+  "include_meshes": ["Body_Mesh", "Hips_Mesh", "LeftArm_Mesh", "RightArm_Mesh", "LeftHand_Mesh", "RightHand_Mesh",
+                     "LeftLeg_Mesh", "RightLeg_Mesh", "Helmet_CUTSCENE", "Visor_CUTSCENE"],
+  "texture_names": {
+    "body_ironmanm6_front_nxg": "im_bodyf",
+    "body_ironmanm6_back_nxg": "im_bodyb",
+    "legright_ironmanm6_nxg": "im_legs",
+    "lego_darkred_nxg": "im_dkred",
+    "ironmanhelmet_nxg / texture 0": "im_helm"
+  }
+}

@@ -85,3 +85,41 @@ Ottenere conferma esplicita di Dario prima di eseguire un installer Git, oppure 
 
 - Autenticazione risolta: push confermato dal remoto, main aggiornato da 0cad3f7 a 68c113c. Nessun asset/binario incluso. Aggiornamenti successivi documentano provenienza e blocchi.
 
+
+## Ripresa dopo spazio liberato
+- Dario conferma spazio liberato e accesso GitHub. C: dispone di 32.366.632.960 byte liberi al controllo.
+- Riavviata installazione Visual Studio Build Tools 2022 con workload C++. Installazione in corso.
+- Preparati premake5.lua e scripts/compila.ps1 per compilazione x86 con plugin-sdk, output esclusivamente in build/ ignorata da Git.
+
+
+## Lavoro di Claude mentre Codex era fermo (8 novembre, 22:30–23:15)
+- **Iron Man convertito per SA** con `tools/converti_minifig.py` + `tools/config/ironman_m6.json` (Blender 5.2 + DragonFF, eseguito nel cloud di Claude):
+  - mesh, pesi e texture SOLO da `LMSH1_IRONMANM6.blend` (IRONMANM6.CD originale); casco = Helmet/Visor originali con colori per vertice tradotti in colori materiale.
+  - scheletro: quello dei pedoni SA preso da `player.img/torso.dff` (37 ossa, bone_id originali), articolazioni spostate sui perni del minifig; pesi TT rinominati verso le ossa SA (nessun peso inventato).
+  - altezza 1,80 m; piedi a z = -1,0. Il bacino è abbassato di 0,53 m rispetto alla radice: verificato su `anim/ped.ifp` che le animazioni traslano solo l'osso radice ("Root"/"Normal"), il bacino solo in 8 animazioni su 294 (lì Iron Man potrebbe sollevarsi: da controllare).
+  - verifiche: reimport del DFF, render da fermo e in posa (braccia, gambe, testa seguono lo scheletro). File: `estratti\ironman-sa\` (dff, txd, png di controllo).
+- **Pronto in Modloader**: `GTA-SA-mod\modloader\MergeGiochi\` con ironman.dff, ironman.txd e peds.ide (copia dell'originale + riga ID 3, verificato libero nel peds.ide del gioco):
+  `3, ironman, ironman, CIVMALE, STAT_STD_MISSION, player, 1FFF, 0, null, 9,9, PED_TYPE_SPC, VOICE_GEN_NOVOICE, VOICE_GEN_NOVOICE`
+- **Codice nuovo** (sintassi controllata con gli header di plugin-sdk, mai compilato con MSVC né provato):
+  - `src/volo/ModuloVolo.cpp` (compito 03).
+  - `src/personaggi/CambioPersonaggio.cpp`: F9 trasforma il giocatore in Iron Man (modello cercato per nome "ironman") e viceversa (CJ + RebuildPlayer).
+- **Downgrade verificato nel codice sorgente**: gtasa-open-downgrader (`downgrader/main.py`, riga 698) riconosce l'MD5 D9CB35C8... come "NewSteam R2 (German)" e lo porta a 1.0 US Hoodlum. Le patch stanno su files.xxanqw.me (non raggiungibile dal cloud di Claude): usare la build **offline** per Windows dalla release GitHub. Lo stesso programma installa anche ASI Loader e ModLoader.
+- **Roster dai file**: `docs/roster-dai-file.md` (554 file .CD: 192 minifig principali, big-fig, varianti, comparse).
+
+## Notte 8→9 novembre: Iron Man FUNZIONA in gioco (Claude + test di Dario)
+- Downgrade fatto da Dario con gtasa-open-downgrader offline (gta_sa.exe 1.0 US Hoodlum), con ASI Loader, ModLoader, SilentPatch.
+- **Plugin compilato da Claude con MinGW-w64** in cloud (`tools/compila_mingw.sh`), installato come `GTA-SA-mod\modloader\MergeGiochi\MergeGiochi.asi`. Log diagnostico: `modloader\MergeGiochi\MergeGiochi.log`.
+- Tasti attuali: **F9** = Iron Man ↔ CJ; **F10** = ciclo diagnostico (male01 → mgtest → CJ); volo: Maiusc due volte, Maiusc tenuto sale, C scende/atterra, Spazio boost, F8 attiva/disattiva il volo. Sul ThinkPad F7 e F11 NON arrivano al gioco: usare altri tasti.
+- **Lezioni (importanti per tutti i personaggi):**
+  1. Cambio modello del giocatore: `DeleteRwObject()` + `m_nModelIndex = -1` + `SetModelIndex(id)` + ripristino `m_nAnimGroup` (come examples/HandSignals di plugin-sdk). Senza → crash 0x4D2C3A.
+  2. Lo scheletro dei vestiti di CJ (player.img/torso.dff) fa crashare il gioco (0x4D2C3A) se usato da un altro modello come giocatore. **Si usa lo scheletro di un pedone normale: `male01`** (32 ossa, mesh agganciata al Pelvis). Estratto da gta3.img con `strumenti\ESTRAI_PEDONI.bat` in `estratti\sa\`.
+  3. Convenzione skin RW verificata (errore 0): `skin_k = inv(W_k · inv(W_frameAtomic))`; vertici nello spazio del frame dell'atomic.
+  4. DragonFF: riesportando un'armatura azzera la rotazione dell'osso radice; la sua libreria condivide la lista dei clump fra istanze (caricare il file "base" per ultimo). Per questo il DFF finale si scrive con `tools/scrivi_dff_ped.py` partendo dal DFF originale di male01.
+  5. **Limite slot pedoni**: con 3 righe aggiunte a peds.ide il gioco crasha al caricamento (0x5B74AC → 0x4C67BB). Serve un limit adjuster per avere più personaggi.
+  6. Volo: `FlushImmediately(true)` (mai `false`, altrimenti crash 0x523E6B all'atterraggio).
+  7. Il bridge file di Claude a volte ha copiato versioni vecchie: ogni file installato va verificato con l'impronta MD5.
+- Pipeline personaggio: `converti_minifig.py config.json` (Blender+DragonFF) → `scrivi_dff_ped.py male01.dff <blend> <dff> torso.dff <uscita>` → TXD da DragonFF.
+- Studio LMSH: il volo di Iron Man è definito in `IRONMAN_FLY.AS` con stati hover / hover_up / hover_down / hover_left / hover_right / fly / flyleft / flyright / fly_sprint(±left/right) / fly_turn_180 / fly_slowdown / fly_land / fly_intro / glide; animazioni in `IRONMAN_FLY_AN4_NXG.PAK`.
+
+## Prossimo passo
+Vedi `docs/compiti/05-codex-quattro-personaggi.md` (Codex) — Claude lavora su volo/caduta libera e conversione.
