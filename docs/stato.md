@@ -132,3 +132,18 @@ Vedi `docs/compiti/05-codex-quattro-personaggi.md` (Codex) — Claude lavora su 
 - ironman.dff MD5 D7435804AA03F5FEEEB84471F222471F e ironman.txd MD5 255E574186E5AFCAAD6934281DAF089A invariati.
 - QuickBMS: 59 risorse dei quattro personaggi estratte da GAME.DAT; estrazione dagli altri archivi e import Blender in corso.
 
+
+### AN4 volo — test completato
+- Script tools/verifica_volo_an4.py, uscita estratti/verifica-volo-an4/IRONMANM6_volo.blend ed esito.json. Nessun file Iron Man originale o installato modificato.
+- 42 voci di catalogo fanno riferimento a IRONMAN_FLY_AN4_NXG.PAK; provate 7 voci: Hover_Up, Hover, Hover_Down (144 frame), FlyLeft, Fly, FlyRight (156 frame), fly_land (18 frame). Tutte importate sul rig nativo a 63 ossa; matrici finite ai frame iniziale, centrale e finale.
+- Avviso comune: nessun attore univoco per gli attachment FACE_TONYSTARK e IronManHelmet. Clip del corpo importate, animazione indipendente degli attachment non risolta. Non è un test di retargeting SA né di volo in gioco.
+
+
+### Prime tre importazioni verificate
+| Personaggio | Mesh visibili | Ossa | Texture caricate e impacchettate | Controllo visivo |
+|---|---:|---:|---:|---|
+| Spider-Man | 12 | 63 | 5/5 | Maschera e busto visibili; materiali approssimano lo shader nativo |
+| Captain America | 16 | 63 | 6/6 | Costume visibile; scudo assente nel render, da verificare come risorsa equipaggiata |
+| Wolverine | 18 | 63 | 7/7 | Costume e capelli visibili; artigli assenti nella posa importata |
+Le verifiche texture riaprono i .blend e controllano dati immagine e packed_file. Nessuna immagine senza pixel nei tre file. Report locali nelle cartelle estratti/audit-<personaggio>.
+
